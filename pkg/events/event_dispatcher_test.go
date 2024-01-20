@@ -127,6 +127,32 @@ func (suite *EventDispatcherTestSuite) TestEventDispatcher_Dispatch() {
 	eventHandler.AssertNumberOfCalls(suite.T(), "Handle", 1)
 }
 
+func (suite *EventDispatcherTestSuite) TestEventDispatcher_Remove() {
+	// Event 1
+	err := suite.eventDispatcher.Register(suite.event1.GetName(), &suite.handler1)
+	suite.NoError(err)
+	suite.Equal(1, len(suite.eventDispatcher.handlers[suite.event1.GetName()]))
+
+	err = suite.eventDispatcher.Register(suite.event1.GetName(), &suite.handler2)
+	suite.NoError(err)
+	suite.Equal(2, len(suite.eventDispatcher.handlers[suite.event1.GetName()]))
+
+	// Event 2
+	err = suite.eventDispatcher.Register(suite.event2.GetName(), &suite.handler3)
+	suite.NoError(err)
+	suite.Equal(1, len(suite.eventDispatcher.handlers[suite.event2.GetName()]))
+
+	suite.eventDispatcher.Remove(suite.event1.GetName(), &suite.handler1)
+	suite.Equal(1, len(suite.eventDispatcher.handlers[suite.event1.GetName()]))
+	suite.Equal(&suite.handler2, suite.eventDispatcher.handlers[suite.event1.GetName()][0])
+
+	suite.eventDispatcher.Remove(suite.event1.GetName(), &suite.handler2)
+	suite.Empty(suite.eventDispatcher.handlers[suite.event1.GetName()])
+
+	suite.eventDispatcher.Remove(suite.event2.GetName(), &suite.handler3)
+	suite.Empty(suite.eventDispatcher.handlers[suite.event2.GetName()])
+}
+
 func TestSuite(t *testing.T) {
 	suite.Run(t, new(EventDispatcherTestSuite))
 }
