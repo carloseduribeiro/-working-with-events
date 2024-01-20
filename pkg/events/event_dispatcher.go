@@ -14,7 +14,7 @@ func NewEventDispatcher() *EventDispatcher {
 	}
 }
 
-func (e EventDispatcher) Register(name string, handler EventHandlerInterface) error {
+func (e *EventDispatcher) Register(name string, handler EventHandlerInterface) error {
 	if _, ok := e.handlers[name]; ok {
 		for _, h := range e.handlers[name] {
 			if h == handler {
@@ -24,4 +24,8 @@ func (e EventDispatcher) Register(name string, handler EventHandlerInterface) er
 	}
 	e.handlers[name] = append(e.handlers[name], handler)
 	return nil
+}
+
+func (e *EventDispatcher) Clear() {
+	e.handlers = make(map[string][]EventHandlerInterface)
 }
